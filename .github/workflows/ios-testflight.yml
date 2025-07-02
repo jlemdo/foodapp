@@ -47,7 +47,7 @@ jobs:
 
       - name: 🛠️ Install iOS pods
         working-directory: ios
-        run: bundle exec pod install --repo-update --verbose
+        run: pod install --repo-update --verbose
 
       # ─── Decodifica certificados y perfiles ─────────────
       - name: 🔑 Decode distribution certificate
