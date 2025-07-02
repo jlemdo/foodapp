@@ -1,11 +1,7 @@
-# ios/Podfile
-
 platform :ios, '16.0'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-
 prepare_react_native_project!
-
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
@@ -18,20 +14,11 @@ target 'MyNewApp' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    # Path absoluto a la raíz de la app
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # Añade aquí otros pods que necesites, por ejemplo:
-  # pod 'SomeLibrary', '~> 1.2.3'
-
   post_install do |installer|
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false
-    )
-    # Workaround para Xcode 12.5 / M1:
+    react_native_post_install(installer, config[:reactNativePath], :mac_catalyst_enabled => false)
     __apply_Xcode_12_5_M1_post_install_workaround(installer) if installer.pods_project.targets.map(&:name).include?("RCT-Folly")
   end
 end
