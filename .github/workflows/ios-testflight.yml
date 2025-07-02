@@ -16,7 +16,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.7
-
+          
       - name: 📦 Install gems, JS deps & pods
         run: |
           gem install bundler
@@ -25,6 +25,10 @@ jobs:
 
           # Instalar dependencias JS
           npm install
+
+          # Limpiar Pods viejos en CI
+          rm -rf ios/Pods
+          rm ios/Podfile.lock
 
           # Instalar Pods
           cd ios
