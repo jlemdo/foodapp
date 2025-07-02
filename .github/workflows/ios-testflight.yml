@@ -16,7 +16,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.7
-          
+
       - name: 📦 Install gems, JS deps & pods
         run: |
           gem install bundler
@@ -25,16 +25,16 @@ jobs:
 
           npm install
 
-          # Limpiar Pods viejos en CI sin fallar
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
 
-          cd ios
-          pod install
+          pushd ios
+          pod install --repo-update
+          popd
 
       - name: 🔑 Decode distribution certificate
         env:
-          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }}
           CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
         run: |
           echo "$APPLE_CERT" | base64 --decode > ios/ios_distribution.p12
