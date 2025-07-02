@@ -40,7 +40,7 @@ jobs:
       - name: 📥 Fetch react-native-maps-generated.podspec
         run: |
           curl -L \
-            https://raw.githubusercontent.com/react-native-maps/react-native-maps/v1.23.7/react-native-maps-generated.podspec \
+            https://unpkg.com/react-native-maps@1.23.7/react-native-maps-generated.podspec \
             -o node_modules/react-native-maps/react-native-maps-generated.podspec
 
 
