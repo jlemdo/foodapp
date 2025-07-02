@@ -1,6 +1,6 @@
 name: Check iOS Certificate
 
-# Sólo se dispara manualmente (workflow_dispatch)
+# Sólo se dispara manualmente (workflow_dispatch) 
 on:
   workflow_dispatch:
 
@@ -19,4 +19,4 @@ jobs:
           # Primeros bytes en hex (PKCS#12 magic)
           xxd -l 8 ios_distribution.p12
         env:
-          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }} 
