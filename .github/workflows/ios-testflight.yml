@@ -47,7 +47,7 @@ jobs:
       - name: 🔑 Decode distribution certificate
         env:
           APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }} 
-          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
+          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }} 
         run: |
           echo "$APPLE_CERT" | base64 --decode > ios/ios_distribution.p12
           security create-keychain -p "" build.keychain
