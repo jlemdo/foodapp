@@ -1,9 +1,25 @@
+# Repositorios de Specs
+source 'https://cdn.cocoapods.org/'
 source 'https://github.com/CocoaPods/Specs.git'
+
 platform :ios, '16.0'
 
+# Hooks de React Native
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
+# -------------------------------------------------------
+# Generación forzada de react-native-maps-generated.podspec
+rn_maps_path = '../node_modules/react-native-maps'
+require_relative "#{rn_maps_path}/scripts/create-podspecs"
+
+create_podspecs!(
+  podspec_path: "#{rn_maps_path}/react-native-maps-generated.podspec",
+  module_name: 'react-native-maps'
+)
+# -------------------------------------------------------
+
+# Soporte para frameworks dinámicos/estáticos si se requiere
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
   Pod::UI.puts "🔗 Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -13,14 +29,15 @@ end
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # React Native Maps (normal)
-  pod 'react-native-maps', path: '../node_modules/react-native-maps'
+  # react-native-maps con su Podspec generado
+  pod 'react-native-maps-generated', path: "#{rn_maps_path}/react-native-maps-generated.podspec"
+  pod 'react-native-maps',           path: rn_maps_path
 
-  # Resto de módulos RN + desactiva Nueva Arquitectura
+  # Resto de módulos RN, desactivando Fabric & TurboModules
   use_react_native!(
     :path => config[:reactNativePath],
     :app_path => "#{Pod::Config.instance.installation_root}/..",
-    :new_arch_enabled => false,    # apaga Fabric & TurboModules
+    :new_arch_enabled => false,
     :fabric_enabled    => false
   )
 
@@ -29,8 +46,9 @@ target 'MyNewApp' do
       installer,
       config[:reactNativePath],
       mac_catalyst_enabled: false,
-      new_arch_enabled: false     # sincroniza con use_react_native!
+      new_arch_enabled: false
     )
+
     # Workaround Xcode 12.5 / Apple Silicon
     if installer.pods_project.targets.map(&:name).include?('RCT-Folly')
       __apply_Xcode_12_5_M1_post_install_workaround(installer)
