@@ -2,8 +2,8 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(
-      workspace:      "foodapp.xcworkspace",                # o el tuyo
-      scheme:         "foodapp",                             # el scheme real
+      workspace:      "MyNewApp.xcworkspace",                # o el tuyo
+      scheme:         "MyNewApp",                             # el scheme real
       clean:          true,
       export_method:  "app-store",
 
