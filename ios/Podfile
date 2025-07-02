@@ -18,7 +18,7 @@ target 'MyNewApp' do
 
   # react-native-maps — apunta explícito al Podspec generado
   rn_maps_path = '../node_modules/react-native-maps'
-  pod 'react-native-maps-generated', path: "#{rn_maps_path}/react-native-maps-generated.podspec"
+  pod 'react-native-maps-generated', podspec: "#{rn_maps_path}/react-native-maps-generated.podspec"
   pod 'react-native-maps',           path: rn_maps_path
 
   use_react_native!(
