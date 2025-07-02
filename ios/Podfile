@@ -1,25 +1,15 @@
-# Repositorios de Specs
+# 1. Repositorios de specs
 source 'https://cdn.cocoapods.org/'
 source 'https://github.com/CocoaPods/Specs.git'
 
+# 2. Plataforma mínima
 platform :ios, '16.0'
 
-# Hooks de React Native
+# 3. React Native base
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
-# -------------------------------------------------------
-# Generación forzada de react-native-maps-generated.podspec
-rn_maps_path = '../node_modules/react-native-maps'
-require_relative "#{rn_maps_path}/scripts/create-podspecs"
-
-create_podspecs!(
-  podspec_path: "#{rn_maps_path}/react-native-maps-generated.podspec",
-  module_name: 'react-native-maps'
-)
-# -------------------------------------------------------
-
-# Soporte para frameworks dinámicos/estáticos si se requiere
+# 4. Soporte opcional para use_frameworks!
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
   Pod::UI.puts "🔗 Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -29,11 +19,12 @@ end
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # react-native-maps con su Podspec generado
+  # 5. React Native Maps — apunta al Podspec generado
+  rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-maps-generated', path: "#{rn_maps_path}/react-native-maps-generated.podspec"
   pod 'react-native-maps',           path: rn_maps_path
 
-  # Resto de módulos RN, desactivando Fabric & TurboModules
+  # 6. Resto de RN modules (Nueva Arquitectura desactivada)
   use_react_native!(
     :path => config[:reactNativePath],
     :app_path => "#{Pod::Config.instance.installation_root}/..",
@@ -41,6 +32,7 @@ target 'MyNewApp' do
     :fabric_enabled    => false
   )
 
+  # 7. Hooks post-install
   post_install do |installer|
     react_native_post_install(
       installer,
@@ -48,7 +40,6 @@ target 'MyNewApp' do
       mac_catalyst_enabled: false,
       new_arch_enabled: false
     )
-
     # Workaround Xcode 12.5 / Apple Silicon
     if installer.pods_project.targets.map(&:name).include?('RCT-Folly')
       __apply_Xcode_12_5_M1_post_install_workaround(installer)
