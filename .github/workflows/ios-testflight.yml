@@ -11,38 +11,39 @@ jobs:
       NODE_ENV: development
 
     steps:
-      # 1. Checkout repo
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      # 2. Cache Ruby gems & set up Bundler
-      - name: 💎 Set up Ruby & cache gems
+      # ─── Desactiva Husky para TODO npm install/ci ──────
+      - name: 🚫 Disable Husky hooks in CI
+        run: echo "HUSKY=0" >> $GITHUB_ENV
+
+      # ─── Ruby + Bundler (cache opcional) ────────────────
+      - name: 💎 Set up Ruby & Bundler
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.7
           bundler-cache: true
 
-      # 3. Cache Node.js modules
+      # ─── Node.js + npm cache ────────────────────────────
       - name: 🔧 Set up Node.js & cache npm
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
 
-      # 4. Install JS dependencies
+      # ─── Instala deps JS ────────────────────────────────
       - name: 📦 Install JS dependencies
-        env:
-          HUSKY: 0 # Disable Husky hooksz  
         run: npm ci
 
-      # 5. Generate react-native-maps Podspec
+      # ─── Genera Podspec de react-native-maps ─────────────
       - name: 🔨 Generate react-native-maps Podspec
         working-directory: ./node_modules/react-native-maps
         run: |
           npm install
           npm run build
 
-      # 6. Cache CocoaPods & install pods
+      # ─── Cache CocoaPods & pod install ──────────────────
       - name: 🧩 Cache CocoaPods
         uses: actions/cache@v3
         with:
@@ -55,7 +56,7 @@ jobs:
         working-directory: ios
         run: bundle exec pod install --repo-update --verbose
 
-      # 7. Decode distribution certificate
+      # ─── Decodifica certificados y perfiles ─────────────
       - name: 🔑 Decode distribution certificate
         env:
           APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }}
@@ -69,7 +70,6 @@ jobs:
             -T /usr/bin/codesign
           security list-keychains -s ~/Library/Keychains/build.keychain
 
-      # 8. Decode provisioning profile
       - name: 📄 Decode provisioning profile
         env:
           PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
@@ -78,7 +78,6 @@ jobs:
           echo "$PROFILE" | base64 --decode > \
             ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
-      # 9. Decode App Store Connect API Key
       - name: 🔐 Decode App Store Connect API Key
         env:
           ASC_KEY: ${{ secrets.APPSTORE_API_KEY }}
@@ -86,7 +85,7 @@ jobs:
         run: |
           echo "$ASC_KEY" | base64 --decode > ios/AuthKey_${KEY_ID}.p8
 
-      # 10. Run Fastlane beta lane
+      # ─── Ejecuta Fastlane ───────────────────────────────
       - name: 🚀 Run Fastlane beta
         working-directory: ios
         run: bundle exec fastlane beta
