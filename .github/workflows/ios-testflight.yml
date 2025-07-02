@@ -7,33 +7,55 @@ on:
 jobs:
   ios:
     runs-on: macos-latest
+    env:
+      NODE_ENV: development
 
     steps:
-      - name: 📥 Checkout code
+      # 1) Clona tu repo
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 💎 Set up Ruby
+      # 2) Prepara Ruby y cachea gems
+      - name: 💎 Set up Ruby & cache gems
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.7
+          bundler-cache: true
 
-      - name: 📦 Install gems, JS deps & pods
+      # 3) Prepara Node y cachea npm
+      - name: 🔧 Set up Node.js & cache npm
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      # 4) Instala dependencias JS
+      - name: 📦 Install JS dependencies
+        run: npm ci
+
+      # 5) Genera el Podspec de react-native-maps
+      - name: 🔨 Generate react-native-maps Podspec
+        working-directory: ./node_modules/react-native-maps
         run: |
-          gem install bundler
-          bundle config set path vendor/bundle
-          bundle install
-          gem install cocoapods -v 1.15.2
-
           npm install
+          npm run build
 
-          rm -rf ~/.cocoapods/repos/trunk
-          bundle exec pod repo update
+      # 6) Cache CocoaPods y ejecuta pod install
+      - name: 🧩 Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: |
+            ios/Pods
+            ~/.cocoapods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/Podfile.lock') }}
 
-          pushd ios
-          rm -rf Pods Podfile.lock
-          pod _1.15.2_ install --repo-update --verbose
-          popd
+      - name: 🛠️ Install iOS pods
+        working-directory: ios
+        run: |
+          set -o pipefail
+          bundle exec pod install --repo-update --verbose
 
+      # 7) Decodifica el certificado de distribución
       - name: 🔑 Decode distribution certificate
         env:
           APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }}
@@ -47,6 +69,7 @@ jobs:
             -T /usr/bin/codesign
           security list-keychains -s ~/Library/Keychains/build.keychain
 
+      # 8) Decodifica el provisioning profile
       - name: 📄 Decode provisioning profile
         env:
           PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
@@ -55,17 +78,16 @@ jobs:
           echo "$PROFILE" | base64 --decode > \
             ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
+      # 9) Decodifica la API Key de App Store Connect
       - name: 🔐 Decode App Store Connect API Key
         env:
           ASC_KEY: ${{ secrets.APPSTORE_API_KEY }}
           KEY_ID:  ${{ secrets.APPSTORE_KEY_ID }}
         run: |
-          echo "$ASC_KEY" | base64 --decode > AuthKey_${KEY_ID}.p8
+          echo "$ASC_KEY" | base64 --decode > ios/AuthKey_${KEY_ID}.p8
 
-      - name: 🚀 Run Fastlane beta lane
+      # 10) Lanza tu lane de Fastlane
+      - name: 🚀 Run Fastlane beta
         working-directory: ios
-        env:
-          APPSTORE_KEY_ID:    ${{ secrets.APPSTORE_KEY_ID }}
-          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
-          APPSTORE_API_KEY:   ${{ secrets.APPSTORE_API_KEY }}
         run: bundle exec fastlane beta
+        # fail-fast: false   # <— descomenta si quieres que siga aunque falle Fastlane
