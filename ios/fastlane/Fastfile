@@ -8,9 +8,10 @@ platform :ios do
       export_method:  "app-store",
 
       # 1) Inyecta todo lo que Xcode necesita para la fase de archive
+      # Forzamos Manual signing para que coincida con el profile que acabamos de decodificar
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-        "CODE_SIGN_STYLE=Automatic",
+        "CODE_SIGN_STYLE=Manual",
         "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
         "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
       ].join(" "),
