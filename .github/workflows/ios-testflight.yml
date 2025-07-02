@@ -36,13 +36,6 @@ jobs:
       - name: 📦 Install JS dependencies
         run: npm ci
 
-      # ─── Genera Podspec de react-native-maps ─────────────
-      - name: 🔨 Generate react-native-maps Podspec
-        working-directory: ./node_modules/react-native-maps
-        run: |
-          npm install
-          npm run build
-
       # ─── Cache CocoaPods & pod install ──────────────────
       - name: 🧩 Cache CocoaPods
         uses: actions/cache@v3
