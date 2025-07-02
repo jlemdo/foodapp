@@ -22,7 +22,7 @@ jobs:
           gem install bundler
           bundle config set path vendor/bundle
           bundle install
-          gem install cocoapods
+          gem install cocoapods -v 1.15.2
 
           npm install
 
@@ -40,7 +40,7 @@ jobs:
           # 2) Limpia e instala pods desde aquí
           rm -rf Pods
           rm -f Podfile.lock
-          pod install --repo-update --verbose
+          pod _1.15.2_ install --repo-update --verbose
 
           popd
 
