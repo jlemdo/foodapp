@@ -1,12 +1,27 @@
-default_platform(:ios)
+default_platform :ios
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(
-      export_method: "app-store",
-      scheme: "MyNewApp" # Asegúrate que coincida con el nombre del esquema de tu app
+      workspace:      "MyNewApp.xcworkspace",
+      scheme:         "MyNewApp",
+      clean:          true,
+      export_method:  "app-store",
+
+      # --- aquí le decimos el Team y el profile ---
+      team_id:        ENV["APPLE_TEAM_ID"],      # Development Team para el build
+      export_team_id: ENV["APPLE_TEAM_ID"],      # Team para exportar .ipa
+
+      export_options: {
+        provisioningProfiles: {
+          ENV["APP_IDENTIFIER"] => "OcrProductos_Release_Profile"
+          # ^ el nombre exacto de tu provisioning profile (sin .mobileprovision)
+        }
+      }
     )
+
     upload_to_testflight
   end
 end
+
