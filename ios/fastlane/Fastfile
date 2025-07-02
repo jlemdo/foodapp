@@ -9,8 +9,7 @@ platform :ios do
       clean:          true,
       export_method:  "app-store",
 
-      # --- aquí le decimos el Team y el profile ---
-      team_id:        ENV["APPLE_TEAM_ID"],      # Development Team para el build
+
       export_team_id: ENV["APPLE_TEAM_ID"],      # Team para exportar .ipa
 
       export_options: {
