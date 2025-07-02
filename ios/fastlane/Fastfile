@@ -2,23 +2,23 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(
-      workspace:      "MyNewApp.xcworkspace",                # o el tuyo
-      scheme:         "MyNewApp",                             # el scheme real
+      workspace:      "MyNewApp.xcworkspace",   # tu workspace real
+      scheme:         "MyNewApp",                # tu scheme real
       clean:          true,
       export_method:  "app-store",
 
-      # 1) Establece tu Team
-      xcargs:         [
-                        "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-                        "CODE_SIGN_STYLE=Automatic",
-                        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
-                        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
-                      ].join(" "),
+      # 1) Inyecta todo lo que Xcode necesita para la fase de archive
+      xcargs: [
+        "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
+        "CODE_SIGN_STYLE=Automatic",
+        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
+        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
+      ].join(" "),
 
-      # 2) Permite a Xcode actualizar perfiles si hiciera falta
-      allowProvisioningUpdates: true,
+      # 2) Pasa -allowProvisioningUpdates a la fase de export
+      export_xcargs: "-allowProvisioningUpdates",
 
-      # 3) Para el export .ipa
+      # 3) Y controla el export .ipa como antes
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {
@@ -26,7 +26,6 @@ platform :ios do
         }
       }
     )
-
     upload_to_testflight
   end
 end
