@@ -31,6 +31,8 @@ jobs:
 
       # 4. Install JS dependencies
       - name: 📦 Install JS dependencies
+        env:
+          HUSKY: 0 # Disable Husky hooksz  
         run: npm ci
 
       # 5. Generate react-native-maps Podspec
