@@ -108,4 +108,4 @@ jobs:
 
       - name: 🚀 Run Fastlane beta
         working-directory: ios
-        run: fastlane beta
+        run: fastlane ios beta
