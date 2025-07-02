@@ -6,28 +6,17 @@ platform :ios, '16.0'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
-# Desactiva Fabric & TurboModules
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
-
-# Soporte opcional para frameworks
 linkage = ENV['USE_FRAMEWORKS']
 use_frameworks! :linkage => linkage.to_sym if linkage
 
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # ─── Forzar creación del Podspec de react-native-maps ───
-  rn_maps_path = '../node_modules/react-native-maps'
-  require_relative "#{rn_maps_path}/scripts/create-podspecs"
-  create_podspecs!(
-    podspec_path: "#{rn_maps_path}/react-native-maps-generated.podspec",
-    module_name: 'react-native-maps'
-  )
-
-  # ─── Declaración de los pods ────────────────────────────
-  pod 'react-native-maps-generated',
-      podspec: "#{rn_maps_path}/react-native-maps-generated.podspec"
-  pod 'react-native-maps', path: rn_maps_path
+  # Trae react-native-maps directamente del repo oficial
+  pod 'react-native-maps',
+      git: 'https://github.com/react-native-maps/react-native-maps.git',
+      tag: '1.23.7'
 
   use_react_native!(
     path: config[:reactNativePath],
@@ -40,9 +29,8 @@ target 'MyNewApp' do
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false
+      mac_catalyst_enabled: false
     )
-    # Workaround Xcode 12.5 / Apple Silicon
     if installer.pods_project.targets.map(&:name).include?('RCT-Folly')
       __apply_Xcode_12_5_M1_post_install_workaround(installer)
     end
