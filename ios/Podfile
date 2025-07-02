@@ -6,7 +6,6 @@ prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
 
@@ -16,16 +15,6 @@ target 'MyNewApp' do
   # React Native Maps principal
   pod 'react-native-maps', path: '../node_modules/react-native-maps'
 
-  # Subspec “generated” apuntando al podspec que trae el paquete NPM
-  pod 'react-native-maps-generated',
-      :podspec => File.join(
-        __dir__,
-        '..',
-        'node_modules',
-        'react-native-maps',
-        'react-native-maps.podspec'
-      )
-
   # Resto de módulos RN
   use_react_native!(
     path: config[:reactNativePath],
@@ -33,11 +22,7 @@ target 'MyNewApp' do
   )
 
   post_install do |installer|
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      mac_catalyst_enabled: false
-    )
+    react_native_post_install(installer, config[:reactNativePath])
     if installer.pods_project.targets.map(&:name).include?("RCT-Folly")
       __apply_Xcode_12_5_M1_post_install_workaround(installer)
     end
