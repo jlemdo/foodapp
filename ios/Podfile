@@ -1,46 +1,37 @@
-# 1. Repositorios de specs
 source 'https://cdn.cocoapods.org/'
 source 'https://github.com/CocoaPods/Specs.git'
 
-# 2. Plataforma mínima
 platform :ios, '16.0'
 
-# 3. React Native base
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
-# 4. Soporte opcional para use_frameworks!
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'  # desactiva Fabric & TurboModules
+
 linkage = ENV['USE_FRAMEWORKS']
-if linkage
-  Pod::UI.puts "🔗 Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+use_frameworks! :linkage => linkage.to_sym if linkage
 
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # 5. React Native Maps — apunta al Podspec generado
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-maps-generated', path: "#{rn_maps_path}/react-native-maps-generated.podspec"
   pod 'react-native-maps',           path: rn_maps_path
 
-  # 6. Resto de RN modules (Nueva Arquitectura desactivada)
   use_react_native!(
     :path => config[:reactNativePath],
     :app_path => "#{Pod::Config.instance.installation_root}/..",
-    :new_arch_enabled => false,
+    :new_arch_enabled => false,    # esto solo afecta a use_react_native!
     :fabric_enabled    => false
   )
 
-  # 7. Hooks post-install
   post_install do |installer|
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      mac_catalyst_enabled: false,
-      new_arch_enabled: false
+      :mac_catalyst_enabled => false
+      # , :ccache_enabled => true
     )
-    # Workaround Xcode 12.5 / Apple Silicon
     if installer.pods_project.targets.map(&:name).include?('RCT-Folly')
       __apply_Xcode_12_5_M1_post_install_workaround(installer)
     end
