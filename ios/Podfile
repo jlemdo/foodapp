@@ -16,16 +16,24 @@ use_frameworks! :linkage => linkage.to_sym if linkage
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # react-native-maps — apunta explícito al Podspec generado
+  # ─── Forzar creación del Podspec de react-native-maps ───
   rn_maps_path = '../node_modules/react-native-maps'
-  pod 'react-native-maps-generated', podspec: "#{rn_maps_path}/react-native-maps-generated.podspec"
-  pod 'react-native-maps',           path: rn_maps_path
+  require_relative "#{rn_maps_path}/scripts/create-podspecs"
+  create_podspecs!(
+    podspec_path: "#{rn_maps_path}/react-native-maps-generated.podspec",
+    module_name: 'react-native-maps'
+  )
+
+  # ─── Declaración de los pods ────────────────────────────
+  pod 'react-native-maps-generated',
+      podspec: "#{rn_maps_path}/react-native-maps-generated.podspec"
+  pod 'react-native-maps', path: rn_maps_path
 
   use_react_native!(
-    :path => config[:reactNativePath],
-    :app_path => "#{Pod::Config.instance.installation_root}/..",
-    :new_arch_enabled => false,
-    :fabric_enabled    => false
+    path: config[:reactNativePath],
+    app_path: "#{Pod::Config.instance.installation_root}/..",
+    new_arch_enabled: false,
+    fabric_enabled: false
   )
 
   post_install do |installer|

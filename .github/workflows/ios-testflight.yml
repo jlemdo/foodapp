@@ -14,37 +14,24 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      # ─── Desactiva Husky para TODO npm install/ci ──────
       - name: 🚫 Disable Husky hooks in CI
         run: echo "HUSKY=0" >> $GITHUB_ENV
 
-      # ─── Ruby + Bundler (cache opcional) ────────────────
       - name: 💎 Set up Ruby & Bundler
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.7
           bundler-cache: true
 
-      # ─── Node.js + npm cache ────────────────────────────
       - name: 🔧 Set up Node.js & cache npm
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
 
-      # ─── Instala deps JS ────────────────────────────────
       - name: 📦 Install JS dependencies
         run: npm ci
 
-      # ─── Nuevo paso: descarga el Podspec oficial ────────
-      - name: 📥 Fetch react-native-maps-generated.podspec
-        run: |
-          curl -L \
-            https://unpkg.com/react-native-maps@1.23.7/react-native-maps-generated.podspec \
-            -o node_modules/react-native-maps/react-native-maps-generated.podspec
-
-
-      # ─── Cache CocoaPods & pod install ──────────────────
       - name: 🧩 Cache CocoaPods
         uses: actions/cache@v3
         with:
@@ -57,7 +44,6 @@ jobs:
         working-directory: ios
         run: pod install --repo-update --verbose
 
-      # ─── Decodifica certificados y perfiles ─────────────
       - name: 🔑 Decode distribution certificate
         env:
           APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }}
@@ -86,7 +72,6 @@ jobs:
         run: |
           echo "$ASC_KEY" | base64 --decode > ios/AuthKey_${KEY_ID}.p8
 
-      # ─── Ejecuta Fastlane ───────────────────────────────
       - name: 🚀 Run Fastlane beta
         working-directory: ios
-        run: bundle exec fastlane beta
+        run: fastlane beta
