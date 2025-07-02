@@ -1,5 +1,5 @@
 # ios/Podfile
-
+source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '16.0'
 
 # Carga directa del script de React Native
