@@ -6,6 +6,10 @@ require_relative '../node_modules/react-native/scripts/react_native_pods'
 
 prepare_react_native_project!
 
+# Para que CocoaPods sepa de la spec generada para react-native-maps
+pod 'react-native-maps-generated', :path => "#{Pod::Config.instance.installation_root}/build/generated/ios/ReactNativeMaps.podspec"
+
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
