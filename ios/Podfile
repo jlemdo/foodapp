@@ -6,7 +6,7 @@ platform :ios, '16.0'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
-# Desactiva Fabric & TurboModules
+# Desactiva Fabric & TurboModuless
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
 # Frameworks opcionales
