@@ -15,7 +15,7 @@ target 'MyNewApp' do
 
   pod 'react-native-maps',
       git: 'https://github.com/react-native-maps/react-native-maps.git',
-      tag: '1.23.7'
+      tag: 'v1.23.7'
 
   use_react_native!(
     path: config[:reactNativePath],
