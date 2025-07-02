@@ -1,0 +1,22 @@
+name: Check iOS Certificate
+
+# Sólo se dispara manualmente (workflow_dispatch)
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-cert:
+    runs-on: macos-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔍 Decode & inspect certificate
+        run: |
+          echo "$APPLE_CERT" | base64 --decode > ios_distribution.p12
+          # Muestra tamaño de archivo
+          ls -lh ios_distribution.p12
+          # Primeros bytes en hex (PKCS#12 magic)
+          xxd -l 8 ios_distribution.p12
+        env:
+          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
