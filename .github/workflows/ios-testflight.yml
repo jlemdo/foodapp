@@ -38,6 +38,10 @@ jobs:
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           pushd ios
+      - name: 🐛 Debug Generated Podspecs
+        run: |
+          echo ">>> Contenido de ios/build/generated/ios"
+          ls -R ios/build/generated/ios || echo "(no existe)"
           pod install --repo-update --verbose
           popd
 
