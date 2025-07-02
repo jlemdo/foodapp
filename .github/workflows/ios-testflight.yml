@@ -9,6 +9,13 @@ jobs:
     runs-on: macos-latest
     env:
       NODE_ENV: development
+      APPLE_CERTIFICATE:    ${{ secrets.APPLE_CERTIFICATE }}
+      CERT_PASSWORD:        ${{ secrets.CERT_PASSWORD }}
+      PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
+      APPSTORE_API_KEY:     ${{ secrets.APPSTORE_API_KEY }}
+      APPSTORE_KEY_ID:      ${{ secrets.APPSTORE_KEY_ID }}
+      APPSTORE_ISSUER_ID:   ${{ secrets.APPSTORE_ISSUER_ID }}
+      APP_IDENTIFIER:       ${{ secrets.APP_IDENTIFIER }}
 
     steps:
       - name: 📥 Checkout code
@@ -44,33 +51,44 @@ jobs:
         working-directory: ios
         run: pod install --repo-update --verbose
 
-      - name: 🔑 Decode distribution certificate
-        env:
-          APPLE_CERT:    ${{ secrets.APPLE_CERTIFICATE }} 
-          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }} 
+      - name: 🔍 Debug secrets
         run: |
-          echo "$APPLE_CERT" | base64 --decode > ios/ios_distribution.p12
+          echo "APPLE_CERTIFICATE length:"    $(echo -n "$APPLE_CERTIFICATE"    | wc -c)
+          echo "CERT_PASSWORD length:"        $(echo -n "$CERT_PASSWORD"        | wc -c)
+          echo "PROVISIONING_PROFILE length:" $(echo -n "$PROVISIONING_PROFILE" | wc -c)
+        shell: bash
+
+      - name: 🔑 Decode distribution certificate
+        run: |
+          mkdir -p ios
+          echo "$APPLE_CERTIFICATE" | base64 --decode > ios/ios_distribution.p12
+
+      - name: 🔐 Create & unlock keychain
+        run: |
           security create-keychain -p "" build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          security list-keychains -s build.keychain
+
+      - name: 🛡️ Import certificate into keychain
+        run: |
+          echo "P12 file info:" && ls -lh ios/ios_distribution.p12
           security import ios/ios_distribution.p12 \
             -k ~/Library/Keychains/build.keychain \
             -P "$CERT_PASSWORD" \
             -T /usr/bin/codesign
-          security list-keychains -s ~/Library/Keychains/build.keychain
 
       - name: 📄 Decode provisioning profile
-        env:
-          PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$PROFILE" | base64 --decode > \
-            ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+          echo "$PROVISIONING_PROFILE" \
+            | base64 --decode \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/$APP_IDENTIFIER.mobileprovision
 
-      - name: 🔐 Decode App Store Connect API Key
-        env:
-          ASC_KEY: ${{ secrets.APPSTORE_API_KEY }}
-          KEY_ID:  ${{ secrets.APPSTORE_KEY_ID }}
+      - name: 🔑 Decode App Store Connect API Key
         run: |
-          echo "$ASC_KEY" | base64 --decode > ios/AuthKey_${KEY_ID}.p8
+          echo "$APPSTORE_API_KEY" | base64 --decode \
+            > ios/AuthKey_${APPSTORE_KEY_ID}.p8
 
       - name: 🚀 Run Fastlane beta
         working-directory: ios
