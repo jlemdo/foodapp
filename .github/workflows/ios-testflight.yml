@@ -19,19 +19,19 @@ jobs:
 
       - name: 📦 Install gems, JS deps & pods
         run: |
-          # 1. Instalar Bundler y tus gems (incluye CocoaPods y Fastlane)
+          # Instala Bundler y las gems (incluye cocoapods y fastlane)
           gem install bundler
           bundle config set path vendor/bundle
           bundle install
 
-          # 2. Instalar dependencias de JS
+          # Instala deps de JS
           npm install
 
-          # 3. Limpiar cualquier repo de Specs corrupto y forzar actualización
+          # Limpia Specs cache y fuerza actualización
           rm -rf ~/.cocoapods/repos/trunk
           bundle exec pod repo update
 
-          # 4. Limpiar Pods antiguos en iOS y reinstalar con salida detallada
+          # Limpia Pods antiguos y reinstala usando bundle exec
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           pushd ios
