@@ -36,6 +36,14 @@ jobs:
       - name: 📦 Install JS dependencies
         run: npm ci
 
+      # ─── Nuevo paso: descarga el Podspec oficial ────────
+      - name: 📥 Fetch react-native-maps-generated.podspec
+        run: |
+          curl -L \
+            https://raw.githubusercontent.com/react-native-maps/react-native-maps/v1.23.7/react-native-maps-generated.podspec \
+            -o node_modules/react-native-maps/react-native-maps-generated.podspec
+
+
       # ─── Cache CocoaPods & pod install ──────────────────
       - name: 🧩 Cache CocoaPods
         uses: actions/cache@v3
