@@ -26,27 +26,13 @@ jobs:
 
           npm install
 
-          # Limpia Specs
           rm -rf ~/.cocoapods/repos/trunk
           bundle exec pod repo update
 
-          # Ahora entra a ios/
           pushd ios
-
-          # 1) Debug: mira si el codegen creó algo
-          echo ">>> Contenido de build/generated/ios"
-          ls -R build/generated/ios || echo "(no existe)"
-
-          # 2) Limpia e instala pods desde aquí
-          rm -rf Pods
-          rm -f Podfile.lock
-          mkdir -p ios/build/generated/ios
-          cp ../node_modules/react-native-maps/react-native-maps-generated.podspec ios/build/generated/ios/
-
+          rm -rf Pods Podfile.lock
           pod _1.15.2_ install --repo-update --verbose
-
           popd
-
 
       - name: 🔑 Decode distribution certificate
         env:

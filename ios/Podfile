@@ -1,8 +1,6 @@
-# ios/Podfile
 source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '16.0'
 
-# Carga directa del script de React Native
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
@@ -15,24 +13,33 @@ end
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # Instala React Native Maps directamente desde node_modules
+  # React Native Maps principal
   pod 'react-native-maps', path: '../node_modules/react-native-maps'
-  pod 'react-native-maps-generated', :path => './build/generated/ios'
 
+  # Subspec “generated” apuntando al podspec que trae el paquete NPM
+  pod 'react-native-maps-generated',
+      :podspec => File.join(
+        __dir__,
+        '..',
+        'node_modules',
+        'react-native-maps',
+        'react-native-maps.podspec'
+      )
 
-  # El resto de módulos de React Native
+  # Resto de módulos RN
   use_react_native!(
-    :path => config[:reactNativePath],
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    path: config[:reactNativePath],
+    app_path: "#{Pod::Config.instance.installation_root}/.."
   )
 
   post_install do |installer|
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false
+      mac_catalyst_enabled: false
     )
-    # Workaround Xcode 12.5 / Apple Silicon
-    __apply_Xcode_12_5_M1_post_install_workaround(installer) if installer.pods_project.targets.map(&:name).include?("RCT-Folly")
+    if installer.pods_project.targets.map(&:name).include?("RCT-Folly")
+      __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    end
   end
 end
