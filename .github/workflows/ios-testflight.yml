@@ -40,6 +40,9 @@ jobs:
           # 2) Limpia e instala pods desde aquí
           rm -rf Pods
           rm -f Podfile.lock
+          mkdir -p ios/build/generated/ios
+          cp ../node_modules/react-native-maps/react-native-maps-generated.podspec ios/build/generated/ios/
+
           pod _1.15.2_ install --repo-update --verbose
 
           popd
