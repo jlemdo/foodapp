@@ -19,31 +19,31 @@ jobs:
 
       - name: 📦 Install gems, JS deps & pods
         run: |
-          # 1. Instala Bundler y tus gems (incluye fastlane)
           gem install bundler
           bundle config set path vendor/bundle
           bundle install
-
-          # 1b. Fallback: instala cocoapods globalmente
           gem install cocoapods
 
-          # 2. Instala deps de JS
           npm install
 
-          # 3. Limpia Specs cache y fuerza actualización
+          # Limpia Specs
           rm -rf ~/.cocoapods/repos/trunk
           bundle exec pod repo update
 
-          # 4. Limpia Pods antiguos y reinstala usando el pod global
-          rm -rf ios/Pods
-          rm -f ios/Podfile.lock
+          # Ahora entra a ios/
           pushd ios
-      - name: 🐛 Debug Generated Podspecs
-        run: |
-          echo ">>> Contenido de ios/build/generated/ios"
-          ls -R ios/build/generated/ios || echo "(no existe)"
+
+          # 1) Debug: mira si el codegen creó algo
+          echo ">>> Contenido de build/generated/ios"
+          ls -R build/generated/ios || echo "(no existe)"
+
+          # 2) Limpia e instala pods desde aquí
+          rm -rf Pods
+          rm -f Podfile.lock
           pod install --repo-update --verbose
+
           popd
+
 
       - name: 🔑 Decode distribution certificate
         env:
