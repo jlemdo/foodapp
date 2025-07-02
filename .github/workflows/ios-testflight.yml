@@ -63,6 +63,15 @@ jobs:
           mkdir -p ios
           echo "$APPLE_CERTIFICATE" | base64 --decode > ios/ios_distribution.p12
 
+      - name: 🧐 Verify P12 integrity with OpenSSL
+        run: |
+          echo "🔍 Checking P12 with OpenSSL…"
+          openssl pkcs12 -info \
+            -in ios/ios_distribution.p12 \
+            -passin pass:"$CERT_PASSWORD" \
+            -noout
+        shell: bash
+        
       - name: 🔐 Create & unlock keychain
         run: |
           security create-keychain -p "" build.keychain
