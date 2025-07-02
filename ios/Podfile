@@ -1,6 +1,6 @@
 # ios/Podfile
 
-platform :ios, '11.0'
+platform :ios, '12.4'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
