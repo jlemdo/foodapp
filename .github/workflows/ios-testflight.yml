@@ -23,14 +23,12 @@ jobs:
           bundle config set path vendor/bundle
           bundle install
 
-          # Instalar dependencias JS
           npm install
 
-          # Limpiar Pods viejos en CI
+          # Limpiar Pods viejos en CI sin fallar
           rm -rf ios/Pods
-          rm ios/Podfile.lock
+          rm -f ios/Podfile.lock
 
-          # Instalar Pods
           cd ios
           pod install
 
