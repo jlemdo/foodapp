@@ -14,3 +14,6 @@ gem 'bigdecimal'
 gem 'logger'
 gem 'benchmark'
 gem 'mutex_m'
+
+# Añadir fastlane (requerido para subir builds a TestFlight)
+gem 'fastlane'
