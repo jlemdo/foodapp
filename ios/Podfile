@@ -1,5 +1,8 @@
+# ios/Podfile
+
 platform :ios, '16.0'
 
+# Carga directa del script de React Native
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
@@ -18,7 +21,11 @@ target 'MyNewApp' do
   )
 
   post_install do |installer|
-    react_native_post_install(installer, config[:reactNativePath], :mac_catalyst_enabled => false)
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      mac_catalyst_enabled: false
+    )
     __apply_Xcode_12_5_M1_post_install_workaround(installer) if installer.pods_project.targets.map(&:name).include?("RCT-Folly")
   end
 end
