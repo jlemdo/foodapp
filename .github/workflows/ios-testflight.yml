@@ -106,6 +106,18 @@ jobs:
         run: |
           gem install fastlane --no-document
 
+      - name: 📝 Dump last lines of Gym log
+        run: |
+          echo "===== Últimas 60 líneas de Gym log ====="
+          tail -n 60 ~/Library/Logs/gym/MyNewApp-MyNewApp.log || true
+        shell: bash
+
+      - name: 🔍 List available schemes
+        run: |
+          cd ios
+          xcodebuild -workspace MyNewApp.xcworkspace -list
+        shell: bash
+
       - name: 🚀 Run Fastlane beta
         working-directory: ios
-        run: fastlane ios beta
+        run: bundle exec fastlane ios beta
