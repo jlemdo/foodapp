@@ -2,15 +2,23 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(
-      workspace:      "MyNewApp.xcworkspace",
-      scheme:         "MyNewApp",
+      workspace:      "foodapp.xcworkspace",                # o el tuyo
+      scheme:         "foodapp",                             # el scheme real
       clean:          true,
       export_method:  "app-store",
 
-      # Indica tu Team ID a Xcode al build (archive)
-      xcargs: "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
+      # 1) Establece tu Team
+      xcargs:         [
+                        "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
+                        "CODE_SIGN_STYLE=Automatic",
+                        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
+                        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
+                      ].join(" "),
 
-      # Esto seguirá configurando el export .ipa correctamente
+      # 2) Permite a Xcode actualizar perfiles si hiciera falta
+      allowProvisioningUpdates: true,
+
+      # 3) Para el export .ipa
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {
