@@ -19,7 +19,7 @@ jobs:
 
       - name: 📦 Install gems, JS deps & pods
         run: |
-          # Instala Bundler y las gems (incluye cocoapods y fastlane)
+          # Instala Bundler y las gems
           gem install bundler
           bundle config set path vendor/bundle
           bundle install
