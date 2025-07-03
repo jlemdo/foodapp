@@ -120,26 +120,33 @@ jobs:
 
       - name: 📄 Decode provisioning profile
         run: |
-          # 1️⃣ Asegúrate de que existe el directorio donde Xcode busca
+          # 1️⃣ Prepara el directorio
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
 
-          # 2️⃣ Decodifica tu secreto Base64 a un fichero
+          # 2️⃣ Decodifica tu secreto a un .mobileprovision temporal
           echo "$PROVISIONING_PROFILE" | base64 --decode \
             > /tmp/profile.mobileprovision
 
-          # 3️⃣ Conviértelo a plist para leer el UUID
+          # 3️⃣ Convierte a plist para poder leer sus campos
           security cms -D -i /tmp/profile.mobileprovision \
             > /tmp/profile.plist
 
-          # 4️⃣ Extrae el UUID interno con PlistBuddy
+          # 4️⃣ Extrae UUID y Name del perfil
           UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /tmp/profile.plist)
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist)
 
-          # 5️⃣ Muévelo con el nombre esperado por Xcode
+          # 5️⃣ Instálalo con el nombre que Xcode busca
           mv /tmp/profile.mobileprovision \
             ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
 
-          echo "✅ Installed provisioning profile ($UUID)"
+          # 6️⃣ Expón el Name como variable de entorno para Fastfile
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+
+          echo "✅ Installed provisioning profile:"
+          echo "   • UUID : $UUID"
+          echo "   • Name : $PROFILE_NAME"
         shell: bash
+
 
       - name: 🚀 Run Fastlane beta
         working-directory: ios

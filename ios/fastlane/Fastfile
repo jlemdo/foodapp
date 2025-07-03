@@ -7,19 +7,19 @@ platform :ios do
       clean:          true,
       export_method:  "app-store",
 
-      # ① Firma Manual con tu perfil de distribución
+      # ① Firma manual, poniendo el specifier = Name real del perfil
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
         "CODE_SIGN_STYLE=Manual",
         "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
-        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
+        "PROVISIONING_PROFILE_SPECIFIER=#{ENV['PROFILE_NAME']}"
       ].join(" "),
 
-      # ② Export .ipa (ya mapea el mismo profile)
+      # ② Export .ipa seguirá mapeando tu Bundle ID al mismo profile
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {
-          ENV["APP_IDENTIFIER"] => "OcrProductos_Release_Profile"
+          ENV["APP_IDENTIFIER"] => ENV["PROFILE_NAME"]
         }
       }
     )
