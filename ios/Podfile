@@ -6,39 +6,34 @@ platform :ios, '16.0'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 prepare_react_native_project!
 
-# Desactiva Fabric & TurboModules 
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
-
-# Frameworks opcionales
 linkage = ENV['USE_FRAMEWORKS']
 use_frameworks! :linkage => linkage.to_sym if linkage
 
 target 'MyNewApp' do
   config = use_native_modules!
 
-  # Sólo Core de react-native-maps (Apple Maps)
+  # react-native-maps: sólo subspec "Maps" (Apple Maps)
   pod 'react-native-maps',
       git: 'https://github.com/react-native-maps/react-native-maps.git',
       tag: 'v1.23.7',
-      subspecs: ['Core']
+      subspecs: ['Maps']
 
   use_react_native!(
     path: config[:reactNativePath],
-    app_path: "#{Pod::Config.instance.installation_root}/..",
     new_arch_enabled: false,
     fabric_enabled: false
   )
 end
 
 post_install do |installer|
-  # Mantenemos el post_install estándar de RN
   react_native_post_install(
     installer,
     __dir__ + '/../node_modules/react-native',
     mac_catalyst_enabled: false
   )
 
-  # FORZAR iOS 16.0 en todos los Pods
+  # Forzar iOS 16.0 en todos los Pods
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
