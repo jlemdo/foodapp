@@ -22,7 +22,7 @@ target 'MyNewApp' do
   use_react_native!(
     path: config[:reactNativePath],
     new_arch_enabled: false,
-    fabric_enabled: false
+    fabric_enabled: false,
     hermes_enabled: false
   )
 end
