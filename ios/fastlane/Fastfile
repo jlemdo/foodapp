@@ -7,7 +7,8 @@ platform :ios do
       clean:          true,
       export_method:  "app-store",
 
-      # Forzamos manual con el certificado de distribución correcto
+      # ① FORCE Release + Distribution
+      configuration:  "Release",
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
         "CONFIGURATION=Release",
@@ -17,6 +18,7 @@ platform :ios do
         "PROVISIONING_PROFILE_SPECIFIER=#{ENV['PROFILE_NAME']}"
       ].join(" "),
 
+      # ② Export con el mismo perfil
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {
