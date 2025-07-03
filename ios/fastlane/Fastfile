@@ -2,24 +2,19 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(
-      workspace:      "MyNewApp.xcworkspace",   # tu workspace real
-      scheme:         "MyNewApp",                # tu scheme real
+      workspace:      "MyNewApp.xcworkspace",
+      scheme:         "MyNewApp",
       clean:          true,
       export_method:  "app-store",
 
-      # 1) Inyecta todo lo que Xcode necesita para la fase de archive
-      # Forzamos Manual signing para que coincida con el profile que acabamos de decodificar
+      # Deja que Xcode elija automáticamente el provisioning profile
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-        "CODE_SIGN_STYLE=Manual",
-        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
-        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
+        "CODE_SIGN_STYLE=Automatic",
+        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}"
       ].join(" "),
 
-      # 2) Pasa -allowProvisioningUpdates a la fase de export
-      export_xcargs: "-allowProvisioningUpdates",
-
-      # 3) Y controla el export .ipa como antes
+      # Puedes quitar export_xcargs si ya no necesitas allowProvisioningUpdates
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {

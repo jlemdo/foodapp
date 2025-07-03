@@ -117,7 +117,14 @@ jobs:
           cd ios
           xcodebuild -workspace MyNewApp.xcworkspace -list
         shell: bash
-
+        
+      - name: 📄 Decode provisioning profile
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROVISIONING_PROFILE" \
+            | base64 --decode \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/$APP_IDENTIFIER.mobileprovision
+=
       - name: 🚀 Run Fastlane beta
         working-directory: ios
         run: bundle exec fastlane ios beta
