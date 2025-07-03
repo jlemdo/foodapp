@@ -7,14 +7,15 @@ platform :ios do
       clean:          true,
       export_method:  "app-store",
 
-      # Deja que Xcode elija automáticamente el provisioning profile
+      # ① Firma Manual con tu perfil de distribución
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-        "CODE_SIGN_STYLE=Automatic",
-        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}"
+        "CODE_SIGN_STYLE=Manual",
+        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['APP_IDENTIFIER']}",
+        "PROVISIONING_PROFILE_SPECIFIER=OcrProductos_Release_Profile"
       ].join(" "),
 
-      # Puedes quitar export_xcargs si ya no necesitas allowProvisioningUpdates
+      # ② Export .ipa (ya mapea el mismo profile)
       export_team_id: ENV["APPLE_TEAM_ID"],
       export_options: {
         provisioningProfiles: {

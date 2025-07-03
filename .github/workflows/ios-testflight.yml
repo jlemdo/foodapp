@@ -121,10 +121,20 @@ jobs:
       - name: 📄 Decode provisioning profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$PROVISIONING_PROFILE" \
-            | base64 --decode \
-            > ~/Library/MobileDevice/Provisioning\ Profiles/$APP_IDENTIFIER.mobileprovision
-            
+          # Decode temporalmente
+          echo "$PROVISIONING_PROFILE" | base64 --decode > /tmp/profile.mobileprovision
+
+          # Extrae el UUID interno
+          UUID=$(security cms -D -i /tmp/profile.mobileprovision \
+            | /usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin)
+
+          # Muévelo con ese nombre al lugar donde Xcode busca
+          mv /tmp/profile.mobileprovision \
+            ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+
+          echo "Installed provisioning profile with UUID $UUID"
+        shell: bash
+
       - name: 🚀 Run Fastlane beta
         working-directory: ios
         run: bundle exec fastlane ios beta
