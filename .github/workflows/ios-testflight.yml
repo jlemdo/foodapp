@@ -28,7 +28,7 @@ jobs:
       - name: 💎 Set up Ruby & Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.7
+          ruby-version: '3.1.7'
           bundler-cache: true
 
       - name: 🔧 Set up Node.js & cache npm
@@ -39,6 +39,9 @@ jobs:
 
       - name: 📦 Install JS dependencies
         run: npm ci
+
+      - name: 🔧 Select Xcode 15.4
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
 
       - name: 🧩 Cache CocoaPods
         uses: actions/cache@v3
@@ -54,9 +57,9 @@ jobs:
 
       - name: 🔍 Debug secrets
         run: |
-          echo "APPLE_CERTIFICATE length:"    $(echo -n "$APPLE_CERTIFICATE"    | wc -c)
-          echo "CERT_PASSWORD length:"        $(echo -n "$CERT_PASSWORD"        | wc -c)
-          echo "PROVISIONING_PROFILE length:" $(echo -n "$PROVISIONING_PROFILE" | wc -c)
+          echo "APPLE_CERTIFICATE length: $(echo -n "$APPLE_CERTIFICATE" | wc -c)"
+          echo "CERT_PASSWORD length:     $(echo -n "$CERT_PASSWORD"     | wc -c)"
+          echo "PROVISIONING_PROFILE length: $(echo -n "$PROVISIONING_PROFILE" | wc -c)"
         shell: bash
 
       - name: 🔑 Decode distribution certificate
@@ -83,7 +86,6 @@ jobs:
 
       - name: 🛡️ Import certificate into keychain
         run: |
-          echo "P12 file info:" && ls -lh ios/ios_distribution.p12
           security import ios/ios_distribution.p12 \
             -k ~/Library/Keychains/build.keychain \
             -P "$CERT_PASSWORD" \
@@ -93,18 +95,18 @@ jobs:
       - name: 📄 Decode provisioning profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$PROVISIONING_PROFILE" \
-            | base64 --decode \
-            > ~/Library/MobileDevice/Provisioning\ Profiles/$APP_IDENTIFIER.mobileprovision
+          echo "$PROVISIONING_PROFILE" | base64 --decode > /tmp/profile.mobileprovision
+          security cms -D -i /tmp/profile.mobileprovision > /tmp/profile.plist
+          UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /tmp/profile.plist)
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist)
+          mv /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+          echo "✅ Installed provisioning profile: UUID=$UUID, Name=$PROFILE_NAME"
+        shell: bash
 
       - name: 🔑 Decode App Store Connect API Key
         run: |
-          echo "$APPSTORE_API_KEY" | base64 --decode \
-            > ios/AuthKey_${APPSTORE_KEY_ID}.p8
-
-      - name: 💾 Install Fastlane
-        run: |
-          gem install fastlane --no-document
+          echo "$APPSTORE_API_KEY" | base64 --decode > ios/AuthKey_${APPSTORE_KEY_ID}.p8
 
       - name: 📝 Dump last lines of Gym log
         run: |
@@ -117,36 +119,6 @@ jobs:
           cd ios
           xcodebuild -workspace MyNewApp.xcworkspace -list
         shell: bash
-
-      - name: 📄 Decode provisioning profile
-        run: |
-          # 1️⃣ Prepara el directorio
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-
-          # 2️⃣ Decodifica tu secreto a un .mobileprovision temporal
-          echo "$PROVISIONING_PROFILE" | base64 --decode \
-            > /tmp/profile.mobileprovision
-
-          # 3️⃣ Convierte a plist para poder leer sus campos
-          security cms -D -i /tmp/profile.mobileprovision \
-            > /tmp/profile.plist
-
-          # 4️⃣ Extrae UUID y Name del perfil
-          UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /tmp/profile.plist)
-          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist)
-
-          # 5️⃣ Instálalo con el nombre que Xcode busca
-          mv /tmp/profile.mobileprovision \
-            ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
-
-          # 6️⃣ Expón el Name como variable de entorno para Fastfile
-          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
-
-          echo "✅ Installed provisioning profile:"
-          echo "   • UUID : $UUID"
-          echo "   • Name : $PROFILE_NAME"
-        shell: bash
-
 
       - name: 🚀 Run Fastlane beta
         working-directory: ios
